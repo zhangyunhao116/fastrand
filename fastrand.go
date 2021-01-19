@@ -1,3 +1,4 @@
+// Package fastrand is the fastest pseudorandom number generator in Go(multiple-scores).
 package fastrand
 
 import (
@@ -19,6 +20,7 @@ func Uint64() uint64 {
 
 // Int returns a non-negative pseudo-random int.
 func Int() int {
+	// EQ
 	u := uint(Int63())
 	return int(u << 1 >> 1) // clear sign bit if int == int32
 }
@@ -28,12 +30,14 @@ func Int31() int32 { return int32(Uint32() & (1<<31 - 1)) }
 
 // Int63 returns a non-negative pseudo-random 63-bit integer as an int64.
 func Int63() int64 {
+	// EQ
 	return int64(Uint64() & (1<<63 - 1))
 }
 
 // Int63n returns, as an int64, a non-negative pseudo-random number in [0,n).
 // It panics if n <= 0.
 func Int63n(n int64) int64 {
+	// EQ
 	if n <= 0 {
 		panic("invalid argument to Int63n")
 	}
@@ -53,6 +57,7 @@ func Int63n(n int64) int64 {
 // For implementation details, see:
 // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction
 func Int31n(n int32) int32 {
+	// EQ
 	if n <= 0 {
 		panic("invalid argument to Int31n")
 	}
@@ -73,6 +78,7 @@ func Int31n(n int32) int32 {
 // Intn returns, as an int, a non-negative pseudo-random number in [0,n).
 // It panics if n <= 0.
 func Intn(n int) int {
+	// EQ
 	if n <= 0 {
 		panic("invalid argument to Intn")
 	}
@@ -80,6 +86,16 @@ func Intn(n int) int {
 		return int(Int31n(int32(n)))
 	}
 	return int(Int63n(int64(n)))
+}
+
+func Float64() float64 {
+	// EQ
+	return float64(Int63n(1<<53)) / (1 << 53)
+}
+
+func Float32() float32 {
+	// EQ
+	return float32(Int31n(1<<24)) / (1 << 24)
 }
 
 // Uint32n returns a pseudo-random number in [0,n).
