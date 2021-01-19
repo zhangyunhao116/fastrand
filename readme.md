@@ -2,9 +2,9 @@
 
 Fastest pseudo-random number generator in Go. 
 
-The generator is actually come from Go runtime per-M structure, and the init-seed is provided by Go runtime, which means you can't add your own seed, but these methods scales very well on multiple cores.
+This generator actually come from Go runtime per-M structure, and the init-seed is provided by Go runtime, which means you can't add your own seed, but these methods scales very well on multiple cores.
 
-This generator passes the SmallCrush suite, part of TestU01 framework: http://simul.iro.umontreal.ca/testu01/tu01.html
+The generator passes the SmallCrush suite, part of TestU01 framework: http://simul.iro.umontreal.ca/testu01/tu01.html
 
 pseudo-random paper: https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf
 
@@ -17,7 +17,7 @@ fast-modulo-reduction: https://lemire.me/blog/2016/06/27/a-fast-alternative-to-t
 - Much faster (~5x faster for single-core; ~200x faster for multiple-cores)
 - Scales well on multiple cores
 - **Not** provide a stable value stream (can't inject init-seed)
-- Fix bug in math/rand `Float64` and `Float32`  (since no need to preserve the value stream)
+- Fix bugs in math/rand `Float64` and `Float32`  (since no need to preserve the value stream)
 
 
 
