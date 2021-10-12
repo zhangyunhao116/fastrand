@@ -2,7 +2,7 @@
 package fastrand
 
 import (
-	_ "unsafe"
+	"unsafe"
 )
 
 //go:linkname runtimefastrand runtime.fastrand
@@ -109,4 +109,48 @@ func Uint32n(n uint32) uint32 {
 // Uint64n returns a pseudo-random number in [0,n).
 func Uint64n(n uint64) uint64 {
 	return Uint64() % n
+}
+
+// Read generates len(p) random bytes and writes them into p.
+// It always returns len(p) and a nil error.
+// It is safe for concurrent use.
+func Read(p []byte) (int, error) {
+	l := len(p)
+
+	// Used for local XORSHIFT.
+	var tmp [2]uint32
+	tmp[0], tmp[1] = Uint32(), Uint32()
+
+	if l >= 4 {
+		var i int
+		uint32p := *(*[]uint32)(unsafe.Pointer(&p))
+		s1, s0 := tmp[0], tmp[1]
+		for l >= 4 {
+			// Local XORSHIFT.
+			s1 ^= s1 << 17
+			s1 = s1 ^ s0 ^ s1>>7 ^ s0>>16
+			s0, s1 = s1, s0
+
+			uint32p[i] = s0 + s1
+			i++
+			l -= 4
+		}
+		tmp[0], tmp[1] = s1, s0
+	}
+
+	if l > 0 {
+		// Local XORSHIFT.
+		// We don't need to save s0 and s1(tmp is not used).
+		s1, s0 := tmp[0], tmp[1]
+		s1 ^= s1 << 17
+		s1 = s1 ^ s0 ^ s1>>7 ^ s0>>16
+
+		r := s0 + s1
+		for l > 0 {
+			p[len(p)-l] = byte(r >> (l * 8))
+			l--
+		}
+	}
+
+	return len(p), nil
 }
