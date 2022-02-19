@@ -6,8 +6,8 @@ This generator actually come from Go runtime per-M structure, and the init-seed 
 
 The generator passes the SmallCrush suite, part of TestU01 framework: http://simul.iro.umontreal.ca/testu01/tu01.html
 
-pseudo-random paper: https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf
-
+xorshift paper: https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf
+wyrand repo: https://github.com/wangyi-fudan/wyhash
 fast-modulo-reduction: https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 
 

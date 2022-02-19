@@ -1,13 +1,23 @@
 base:
   file: "base.txt"
   beforerun: "rm -f -- base.txt"
-  run: "go test -run=NOTEST -bench=SingleCore/fast-rand-Read1000 -benchtime=1s -count=5 > base.txt"
-  maxerr: 15
+  run: "go test -run=NOTEST -bench=SingleCore/fast-rand-Read1000 -benchtime=1s -count=10 > base.txt"
+  maxrun: 3
+  maxerr: 5
 
 cmp:
   file: "latest.txt"
   beforerun: "rm -f -- latest.txt"
-  run: "go test -run=NOTEST -bench=SingleCore/fast-rand-Read1000 -benchtime=1s -count=5 > latest.txt"
+  run: "go test -run=NOTEST -bench=SingleCore/fast-rand-Read1000 -benchtime=1s -count=10 > latest.txt"
   afterrun: "benchstat -alpha=0.001 base.txt latest.txt"
   ignore: "Contains50Hits"
-  maxerr: 15
+  maxrun: 3
+  maxerr: 5
+
+release:
+  file: "release.txt"
+  beforerun: "rm -f -- release.txt"
+  run: "go test -run=NOTEST -bench=. -count=10 -timeout=60m > release.txt"
+  afterrun: "benchstat release.txt"
+  maxrun: 3
+  maxerr: 5

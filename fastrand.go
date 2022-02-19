@@ -2,6 +2,7 @@
 package fastrand
 
 import (
+	"math/bits"
 	"unsafe"
 )
 
@@ -111,6 +112,22 @@ func Uint64n(n uint64) uint64 {
 	return Uint64() % n
 }
 
+type wyrand uint64
+
+func _wymix(a, b uint64) uint64 {
+	hi, lo := bits.Mul64(a, b)
+	return hi ^ lo
+}
+
+func (r *wyrand) Next() uint64 {
+	const (
+		s0 uint64 = 0xa0761d6478bd642f
+		s1 uint64 = 0xe7037ed1a0b428db
+	)
+	*r += wyrand(s0)
+	return _wymix(uint64(*r), uint64(*r^wyrand(s1)))
+}
+
 // Read generates len(p) random bytes and writes them into p.
 // It always returns len(p) and a nil error.
 // It is safe for concurrent use.
@@ -120,34 +137,23 @@ func Read(p []byte) (int, error) {
 		return 0, nil
 	}
 
-	// Used for local XORSHIFT.
-	// Xorshift paper: https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf
-	s0, s1 := Uint32(), Uint32()
+	// Wyrand: https://github.com/wangyi-fudan/wyhash
+	r := new(wyrand)
+	*r = wyrand(Uint64())
 
-	if l >= 4 {
+	if l >= 8 {
 		var i int
-		uint32p := *(*[]uint32)(unsafe.Pointer(&p))
-		for l >= 4 {
-			// Local XORSHIFT.
-			s1 ^= s1 << 17
-			s1 = s1 ^ s0 ^ s1>>7 ^ s0>>16
-			s0, s1 = s1, s0
-
-			uint32p[i] = s0 + s1
+		uint64p := *(*[]uint64)(unsafe.Pointer(&p))
+		for l >= 8 {
+			uint64p[i] = r.Next()
 			i++
-			l -= 4
+			l -= 8
 		}
 	}
 
 	if l > 0 {
-		// Local XORSHIFT.
-		// We don't need to save s0 and s1(tmp is not used).
-		s1 ^= s1 << 17
-		s1 = s1 ^ s0 ^ s1>>7 ^ s0>>16
-
-		r := s0 + s1
 		for l > 0 {
-			p[len(p)-l] = byte(r >> (l * 8))
+			p[len(p)-l] = byte(r.Next() >> (l * 8))
 			l--
 		}
 	}
