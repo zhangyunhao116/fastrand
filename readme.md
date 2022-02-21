@@ -1,29 +1,21 @@
 # fastrand
 
-Fastest pseudo-random number generator in Go. 
+`fastrand` is the fastest pseudo-random number generator in Go. Support most common APIs of `math/rand`.
 
 This generator comes from Go runtime per-M structure, and the init-seed is provided by Go runtime, which means you can't add your seed, but these methods scale very well on multiple cores.
 
 The generator passes the SmallCrush suite, part of TestU01 framework: http://simul.iro.umontreal.ca/testu01/tu01.html
 
-xorshift paper: https://www.jstatsoft.org/article/view/v008i14/xorshift.pdf
-wyrand repo: https://github.com/wangyi-fudan/wyhash
-fast-modulo-reduction: https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-
-
-
 ## Compare to math/rand
 
-- Much faster (~5x faster for single-core; ~200x faster for multiple-cores)
+- **2 ~ 200x faster**
 - Scales well on multiple cores
 - **Not** provide a stable value stream (can't inject init-seed)
 - Fix bugs in math/rand `Float64` and `Float32`  (since no need to preserve the value stream)
 
-
-
 ## Benchmark
 
-Go version: go1.15.6 linux/amd64
+Go version: go1.18 linux/amd64
 
 CPU: AMD 3700x(8C16T), running at 3.6GHz
 
@@ -32,54 +24,18 @@ OS: ubuntu 18.04
 MEMORY: 16G x 2 (3200MHz)
 
 
-
-##### multiple-cores
-
 ```
-name                                 time/op
-MultipleCore/math/rand-Int31n(5)-16   152ns ± 0%
-MultipleCore/fast-rand-Int31n(5)-16  0.40ns ± 0%
-MultipleCore/math/rand-Int63n(5)-16   167ns ± 0%
-MultipleCore/fast-rand-Int63n(5)-16  3.04ns ± 0%
-MultipleCore/math/rand-Float32()-16   143ns ± 0%
-MultipleCore/fast-rand-Float32()-16  0.40ns ± 0%
-MultipleCore/math/rand-Uint32()-16    133ns ± 0%
-MultipleCore/fast-rand-Uint32()-16   0.23ns ± 0%
-MultipleCore/math/rand-Uint64()-16    140ns ± 0%
-MultipleCore/fast-rand-Uint64()-16   0.56ns ± 0%
+name                        old time/op  new time/op  delta
+SingleCore/Uint32()-16      10.7ns ± 1%   3.6ns ± 0%  -66.02%  (p=0.016 n=5+4)
+SingleCore/Uint64()-16      11.3ns ± 0%   6.0ns ±24%  -47.25%  (p=0.008 n=5+5)
+SingleCore/Int()-16         10.8ns ± 0%   5.6ns ± 1%  -48.00%  (p=0.000 n=5+4)
+SingleCore/Intn(32)-16      11.9ns ± 0%   4.2ns ± 0%  -64.75%  (p=0.008 n=5+5)
+SingleCore/Read/1024-16      700ns ± 0%   157ns ± 1%  -77.52%  (p=0.008 n=5+5)
+SingleCore/Read/10240-16    6.84µs ± 0%  1.44µs ± 0%  -78.89%  (p=0.008 n=5+5)
+MultipleCore/Uint32()-16     126ns ± 5%     0ns ± 1%  -99.78%  (p=0.008 n=5+5)
+MultipleCore/Uint64()-16     132ns ± 3%     0ns ± 0%  -99.69%  (p=0.016 n=5+4)
+MultipleCore/Int()-16        127ns ± 4%     1ns ± 0%  -99.57%  (p=0.008 n=5+5)
+MultipleCore/Intn(32)-16     129ns ± 4%     0ns ± 1%  -99.67%  (p=0.008 n=5+5)
+MultipleCore/Read/1024-16   1.13µs ± 5%  0.10µs ± 0%  -91.29%  (p=0.008 n=5+5)
+MultipleCore/Read/10240-16  10.0µs ± 8%   0.6µs ± 1%  -94.09%  (p=0.008 n=5+5)
 ```
-
-
-
-##### single-core
-
-```
-name                               time/op
-SingleCore/math/rand-Int31n(5)-16  15.5ns ± 0%
-SingleCore/fast-rand-Int31n(5)-16  3.91ns ± 0%
-SingleCore/math/rand-Int63n(5)-16  24.4ns ± 0%
-SingleCore/fast-rand-Int63n(5)-16  24.4ns ± 0%
-SingleCore/math/rand-Uint32()-16   10.9ns ± 0%
-SingleCore/fast-rand-Uint32()-16   2.86ns ± 0%
-SingleCore/math/rand-Uint64()-16   11.3ns ± 0%
-SingleCore/fast-rand-Uint64()-16   5.88ns ± 0%
-```
-
-
-
-##### compare to other repo
-
-(multiple-cores)
-
-rand-1 -> this repo
-
-rand-2 -> https://github.com/valyala/fastrand
-
-```
-name                         time/op
-VS/fastrand-1-Uint32()-16    0.23ns ± 0%
-VS/fastrand-2-Uint32()-16    3.04ns ±23%
-VS/fastrand-1-Uint32n(5)-16  0.23ns ± 1%
-VS/fastrand-2-Uint32n(5)-16  3.13ns ±32%
-```
-
