@@ -10,9 +10,7 @@ import (
 func runtimefastrand() uint32
 
 // Uint32 returns a pseudo-random 32-bit value as a uint32.
-func Uint32() uint32 {
-	return runtimefastrand()
-}
+var Uint32 = runtimefastrand
 
 // Uint64 returns a pseudo-random 64-bit value as a uint64.
 func Uint64() uint64 {
