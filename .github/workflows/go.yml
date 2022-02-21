@@ -6,9 +6,9 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,13 +19,18 @@ jobs:
     strategy:
       matrix:
         go-version: [1.12, 1.13, 1.14, 1.15, 1.16, 1.17]
-        os: [ubuntu-latest, macos-latest, windows-latest, ubuntu-16.04, ubuntu-18.04, ubuntu-20.04]
+        os:
+          [
+            ubuntu-latest,
+            macos-latest,
+            windows-latest,
+          ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-      
-    - name: CI
-      run: |
-        go test -race
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: CI
+        run: |
+          go test -race

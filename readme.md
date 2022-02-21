@@ -2,7 +2,7 @@
 
 Fastest pseudo-random number generator in Go. 
 
-This generator actually come from Go runtime per-M structure, and the init-seed is provided by Go runtime, which means you can't add your own seed, but these methods scales very well on multiple cores.
+This generator comes from Go runtime per-M structure, and the init-seed is provided by Go runtime, which means you can't add your seed, but these methods scale very well on multiple cores.
 
 The generator passes the SmallCrush suite, part of TestU01 framework: http://simul.iro.umontreal.ca/testu01/tu01.html
 
