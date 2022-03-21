@@ -110,6 +110,7 @@ func Uint64n(n uint64) uint64 {
 	return Uint64() % n
 }
 
+// wyrand: https://github.com/wangyi-fudan/wyhash
 type wyrand uint64
 
 func _wymix(a, b uint64) uint64 {
@@ -117,13 +118,23 @@ func _wymix(a, b uint64) uint64 {
 	return hi ^ lo
 }
 
-func (r *wyrand) Next() uint64 {
-	const (
-		s0 uint64 = 0xa0761d6478bd642f
-		s1 uint64 = 0xe7037ed1a0b428db
-	)
-	*r += wyrand(s0)
-	return _wymix(uint64(*r), uint64(*r^wyrand(s1)))
+func (r *wyrand) Uint64() uint64 {
+	*r += wyrand(0xa0761d6478bd642f)
+	return _wymix(uint64(*r), uint64(*r^wyrand(0xe7037ed1a0b428db)))
+}
+
+func (r *wyrand) Uint64n(n uint64) uint64 {
+	return r.Uint64() % n
+}
+
+func (r *wyrand) Uint32() uint32 {
+	return uint32(Uint64())
+}
+
+func (r *wyrand) Uint32n(n int) uint32 {
+	// This is similar to Uint32() % n, but faster.
+	// See https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+	return uint32(uint64(r.Uint32()) * uint64(n) >> 32)
 }
 
 // Read generates len(p) random bytes and writes them into p.
@@ -135,15 +146,13 @@ func Read(p []byte) (int, error) {
 		return 0, nil
 	}
 
-	// Wyrand: https://github.com/wangyi-fudan/wyhash
-	r := new(wyrand)
-	*r = wyrand(Uint64())
+	r := wyrand(Uint32())
 
 	if l >= 8 {
 		var i int
 		uint64p := *(*[]uint64)(unsafe.Pointer(&p))
 		for l >= 8 {
-			uint64p[i] = r.Next()
+			uint64p[i] = r.Uint64()
 			i++
 			l -= 8
 		}
@@ -151,7 +160,7 @@ func Read(p []byte) (int, error) {
 
 	if l > 0 {
 		for l > 0 {
-			p[len(p)-l] = byte(r.Next() >> (l * 8))
+			p[len(p)-l] = byte(r.Uint64() >> (l * 8))
 			l--
 		}
 	}
