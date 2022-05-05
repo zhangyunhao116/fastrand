@@ -6,16 +6,11 @@ import (
 	"unsafe"
 )
 
-//go:linkname runtimefastrand runtime.fastrand
-func runtimefastrand() uint32
-
 // Uint32 returns a pseudo-random 32-bit value as a uint32.
 var Uint32 = runtimefastrand
 
 // Uint64 returns a pseudo-random 64-bit value as a uint64.
-func Uint64() uint64 {
-	return (uint64(runtimefastrand()) << 32) | uint64(runtimefastrand())
-}
+var Uint64 = runtimefastrand64
 
 // Int returns a non-negative pseudo-random int.
 func Int() int {
@@ -97,7 +92,16 @@ func Float32() float32 {
 	return float32(Int31n(1<<24)) / (1 << 24)
 }
 
+// Uint returns a pseudo-random 32-bit or 64-bit value.
+var Uint = runtimefastrandu
+
+// Uintn returns a pseudo-random number in [0,n).
+func Uintn(n uint) uint {
+	return Uint() % n
+}
+
 // Uint32n returns a pseudo-random number in [0,n).
+//
 //go:nosplit
 func Uint32n(n uint32) uint32 {
 	// This is similar to Uint32() % n, but faster.
