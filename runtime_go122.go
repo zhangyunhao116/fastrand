@@ -4,14 +4,17 @@
 package fastrand
 
 import (
-	_ "unsafe"
+	"math/rand/v2"
 )
 
-//go:linkname runtimefastrand runtime.cheaprand
-func runtimefastrand() uint32
+func runtimefastrand() uint32 {
+	return rand.Uint32()
+}
 
-//go:linkname runtimefastrand64 runtime.cheaprand64
-func runtimefastrand64() uint64
+func runtimefastrand64() uint64 {
+	return rand.Uint64()
+}
 
-//go:linkname runtimefastrandu runtime.cheaprandu
-func runtimefastrandu() uint
+func runtimefastrandu() uint {
+	return uint(rand.Uint64())
+}

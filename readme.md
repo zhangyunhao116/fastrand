@@ -1,5 +1,9 @@
 # fastrand
 
+> As of Go1.22, the fastrand is just a wrapper of `math/rand/v2`, please use the standard library instead.
+>
+> The fastrand is developed from the background that `math/rand` is unscalable. Because `math/rand` and `math/rand/v2` become scalable since Go1.22, there is no need to use this library.
+
 `fastrand` is the fastest pseudo-random number generator in Go. Support most common APIs of `math/rand`.
 
 This generator base on the Go runtime per-M structure, and the init-seed provided by the Go runtime, which means you can't add your seed, but these methods scale very well on multiple cores.
